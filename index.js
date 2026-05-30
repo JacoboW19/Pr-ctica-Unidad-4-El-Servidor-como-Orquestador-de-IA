@@ -66,6 +66,12 @@ app.post('/api/submit', (req, res) => {
     res.send(respuestaHTML);
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en puerto ${PORT}`);
-});
+// Si estamos en Vercel, esto evita que crashee buscando un puerto
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Servidor corriendo en puerto ${PORT}`);
+    });
+}
+
+// ¡Esta es la línea mágica que Vercel necesita!
+module.exports = app;
