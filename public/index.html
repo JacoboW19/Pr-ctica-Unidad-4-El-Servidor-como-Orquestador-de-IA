@@ -3,14 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propuesta de Proyecto IA</title>
+    <title>Registro de Proyectos IA</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h2>Envía tu Propuesta de Proyecto de IA</h2>
-    <form action="/api/submit" method="POST">
-        <label for="proposal">Describe tu proyecto (mínimo 10 palabras):</label><br>
-        <textarea id="proposal" name="proposal" rows="5" cols="50" required></textarea><br><br>
-        <button type="submit">Enviar Propuesta</button>
-    </form>
+
+    <header class="header-banner">
+        <div class="tag-status">Convocatoria Activa</div>
+        <h1>Build with AI</h1>
+        <p>Plataforma de registro de proyectos. Completa los datos a continuación para que tu propuesta sea evaluada por el modelo de lenguaje.</p>
+    </header>
+
+    <main class="container">
+        <div class="form-wrapper">
+            <h2 class="form-title">Datos del Proyecto</h2>
+
+            <form id="form-propuesta" action="/api/submit" method="POST" novalidate>
+                
+                <input type="hidden" name="enviado" value="1">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Nombre del participante" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="control">Número de Control</label>
+                        <input type="text" id="control" name="control" placeholder="Ej. 21060000" required minlength="8" maxlength="8" pattern="[A-Za-z0-9]{8}">
+                        <small class="hint">Debe contener exactamente 8 caracteres.</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" placeholder="usuario@institucion.edu.mx" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="titulo">Título del Proyecto</label>
+                    <input type="text" id="titulo" name="titulo" placeholder="Ingresa un título descriptivo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="proposal">Descripción detallada</label>
+                    <textarea id="proposal" name="proposal" placeholder="Describe tu proyecto. Mínimo 10 palabras requeridas." required></textarea>
+                    <div class="word-status" id="word-counter">
+                        Palabras: 0 / Mínimo: 10
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-enviar" class="btn-action">
+                    Enviar Propuesta
+                </button>
+
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer-simple">
+        <p>Práctica Unidad 4 · Orquestación de IA con Node.js</p>
+    </footer>
+
+    <script>
+        function contarPalabras(texto) {
+            const limpio = texto.trim();
+            if (!limpio) return 0;
+            return limpio.split(/\s+/).length;
+        }
+
+        const textarea    = document.getElementById('proposal');
+        const contadorDiv = document.getElementById('word-counter');
+        const MINIMO      = 10;
+
+        function actualizarContador() {
+            const cantidad = contarPalabras(textarea.value);
+
+            if (cantidad === 0) {
+                contadorDiv.textContent = 'Palabras: 0 / Mínimo: 10';
+                contadorDiv.className   = 'word-status';
+            } else if (cantidad < MINIMO) {
+                contadorDiv.textContent = `Palabras: ${cantidad} (Faltan ${MINIMO - cantidad})`;
+                contadorDiv.className = 'word-status error';
+            } else {
+                contadorDiv.textContent = `Palabras: ${cantidad} - Requisito cumplido`;
+                contadorDiv.className = 'word-status success';
+            }
+        }
+
+        textarea.addEventListener('input', actualizarContador);
+
+        document.getElementById('form-propuesta').addEventListener('submit', function(e) {
+            const nombre      = document.getElementById('nombre').value.trim();
+            const control     = document.getElementById('control').value.trim();
+            const correo      = document.getElementById('correo').value.trim();
+            const titulo      = document.getElementById('titulo').value.trim();
+            const descripcion = textarea.value.trim();
+            const palabras    = contarPalabras(descripcion);
+
+            // Validación de todos los campos, incluyendo que el control tenga 8 caracteres exactos
+            if (!nombre || !correo || !titulo || !descripcion || !control || control.length !== 8 || palabras < MINIMO) {
+                e.preventDefault(); 
+                
+                if (control.length !== 8 && control.length > 0) {
+                    alert("El número de control debe tener exactamente 8 caracteres.");
+                    document.getElementById('control').focus();
+                } else if (palabras < MINIMO) {
+                    textarea.focus();
+                } else {
+                    alert("Por favor, completa todos los campos correctamente.");
+                }
+            }
+        });
+    </script>
 </body>
 </html>
